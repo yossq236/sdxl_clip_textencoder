@@ -40,11 +40,11 @@ class SDXLCLIPTextEncodeNode(io.ComfyNode):
         if use_break:
             break_list = re.split(r"[ ]*BREAK[ ]*,?", text)
             for i, v in enumerate(break_list):
-                print(f"Processing chunk {i+1}/{len(break_list)}: '{v.replace('\n', '\\n')}'")
+                print(f"Processing chunk {i+1}/{len(break_list)}: '{v.strip().replace('\n', '\\n')}'")
                 if i == 0:
-                    tokens = clip.tokenize(v)
+                    tokens = clip.tokenize(v.strip())
                 else:
-                    tokens_add = clip.tokenize(v)
+                    tokens_add = clip.tokenize(v.strip())
                     tokens["g"] += tokens_add["g"]
                     tokens["l"] += tokens_add["l"]
         else:
