@@ -37,10 +37,14 @@ class SDXLCLIPTextEncodeNode(io.ComfyNode):
 
     @classmethod
     def clip_encode(cls, clip: CLIP, width: int, height: int, crop_w: int, crop_h: int, target_width: int, target_height: int, text: str, use_break: bool, dump: bool) -> any:
+        # clip.tokenize result
+        # {
+        # "g": (chunks)[ (tokens)[ (token)[token_id, token_weight], ... ], ... ],
+        # "l": (chunks)[ (tokens)[ (token)[token_id, token_weight], ... ], ... ],
+        # }
         if use_break:
-            break_list = re.split(r"[ ]*BREAK[ ]*,?", text)
+            break_list = re.split(r"[ ]*BREAK[ ]*,?", text.replace("_", " "))
             for i, v in enumerate(break_list):
-                # print(f"Processing chunk {i+1}/{len(break_list)}: '{v.strip().replace('\n', '\\n')}'")
                 if i == 0:
                     tokens = clip.tokenize(v.strip())
                 else:
@@ -48,7 +52,7 @@ class SDXLCLIPTextEncodeNode(io.ComfyNode):
                     tokens["g"] += tokens_add["g"]
                     tokens["l"] += tokens_add["l"]
         else:
-            tokens = clip.tokenize(text)
+            tokens = clip.tokenize(text.replace("_", " "))
         if len(tokens["l"]) != len(tokens["g"]):
             empty = clip.tokenize("")
             while len(tokens["l"]) < len(tokens["g"]):
