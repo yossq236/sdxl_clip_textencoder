@@ -1,4 +1,4 @@
-from comfy_api.latest import io
+from comfy_api.latest import io, ui
 from comfy.sd import CLIP
 import nodes
 import re
@@ -85,50 +85,3 @@ class SDXLCLIPTextEncodeNode(io.ComfyNode):
             elif in_chunk:
                 chunk.append(word.replace("</w>", "|"))
         return ' '.join(chunk)
-
-class SDXLClipTextTokenDumpNode(io.ComfyNode):
-
-    @classmethod
-    def define_schema(cls) -> io.Schema:
-        return io.Schema(
-            node_id="SDXLClipTextTokenDumpNode",
-            display_name="SDXL ClipTextToken Dump",
-            category="utils",
-            inputs=[
-                io.Clip.Input("clip"),
-                io.String.Input("text",multiline=True),
-                ],
-            outputs=[
-                io.String.Output("token_g"),
-                io.String.Output("token_l"),
-                ]
-        )
-
-    @classmethod
-    def execute(cls, clip, text) -> io.NodeOutput:
-        tokens = clip.tokenize(text)
-        all_token_strings_g = []
-        all_token_strings_l = []
-        try:
-            id_to_token_l = {v: k for k, v in clip.tokenizer.clip_l.tokenizer.get_vocab().items()}
-            id_to_token_g = {v: k for k, v in clip.tokenizer.clip_g.tokenizer.get_vocab().items()}
-            # print("\n--- Tokenized Chunks (G) ---")
-            num_chunks_g = len(tokens['g'])
-            for i, chunk in enumerate(tokens['g']):
-                token_ids_g = [item[0] for item in chunk]
-                token_strings_g = [id_to_token_g.get(token_id, "[UNK]") for token_id in token_ids_g]
-                # all_token_strings_g.extend(token_strings_g)
-                # print(f"Chunk {i+1}/{num_chunks_g}: ", " | ".join(token_strings_g))
-                all_token_strings_g.append(f"Chunk {i+1}/{num_chunks_g}: {' '.join(token_strings_g)}")
-            # print("\n--- Tokenized Chunks (L) ---")
-            num_chunks_l = len(tokens['l'])
-            for i, chunk in enumerate(tokens['l']):
-                token_ids_l = [item[0] for item in chunk]
-                token_strings_l = [id_to_token_l.get(token_id, "[UNK]") for token_id in token_ids_l]
-                # all_token_strings_l.extend(token_strings_l)
-                # print(f"Chunk {i+1}/{num_chunks_l}: ", " | ".join(token_strings_l))
-                all_token_strings_l.append(f"Chunk {i+1}/{num_chunks_l}: {' '.join(token_strings_l)}")
-        except Exception as e:
-            pass
-        return io.NodeOutput("\n".join(all_token_strings_g),"\n".join(all_token_strings_l))
-        

@@ -1,11 +1,11 @@
 from typing import override
 from comfy_api.latest import ComfyExtension, io
-from .nodes import SDXLCLIPTextEncodeNode, SDXLClipTextTokenDumpNode
+from .nodes import SDXLCLIPTextEncodeNode
 
 class MyExtension(ComfyExtension):
     @override
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
-        return [SDXLCLIPTextEncodeNode, SDXLClipTextTokenDumpNode]
+        return [SDXLCLIPTextEncodeNode]
     @override
     async def on_load(self):
         pass
